@@ -86,7 +86,11 @@ def main():
         )
 
     feed = generate_feed(testberichte)
-    with open("1000ps.xml", "w", encoding="utf-8") as f:
+    with open(
+        path.join(path.dirname(path.realpath(__file__)), "1000ps.rss"),
+        "w",
+        encoding="utf-8",
+    ) as f:
         f.write(BeautifulSoup(feed, "xml").prettify())
 
 
