@@ -23,7 +23,7 @@ def main():
     # the feed shall only contain posts from the current month; helps to keep the feed small
     res = requests.get(
         f"https://www.1000ps.de/motorrad-testberichte?DatumAb=01.{month}.{year}",
-        timeout=5,
+        timeout=10,
     )
 
     html = BeautifulSoup(res.text, "html.parser")
@@ -43,8 +43,7 @@ def main():
         link = f"https://www.1000ps.de{item.get('href', '')}"
 
         img = item.select_one(".card-img img")
-        # for some fucking reason, img_src = getattr(img, "data-src", "") returns None
-        img_src = img.get("data-src") if img else None
+        img_src = img.get("data-src") if img else ""  # getattr doesn't work here
 
         content = item.select_one(".card-body .card-text")
 
@@ -77,14 +76,12 @@ def main():
                 BeautifulSoup(f"<img src='{img_src}' />", features="html.parser")
             )
 
-        description = content.prettify()
-
         testberichte.append(
             Testbericht(
                 title,
                 link,
-                description,
-                dateutil.parser.parse(date_str, fuzzy=True),
+                content.prettify(),
+                dateutil.parser.parse(date_str, fuzzy=True),  # dateutil <3
             )
         )
 
@@ -121,7 +118,8 @@ def generate_feed(testberichte: list[Testbericht]) -> str:
       <channel>
         <title>1000PS Testberichte</title>
         <link>https://www.1000ps.de/motorrad-testberichte</link>
-        <description>Die neuesten Testberichte von 1000PS</description>
+        <description>Inoffizieller Feed für die neuesten Testberichte von 1000PS</description>
+        <lastBuildDate>{datetime.now().replace(tzinfo=tz.tzlocal()).strftime("%a, %d %b %Y %H:%M:%S %z")}</lastBuildDate>
         {items}
       </channel>
     </rss>
