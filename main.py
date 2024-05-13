@@ -1,15 +1,26 @@
+import logging
 from datetime import datetime
+from os import path
+
+import dateutil.parser
 import requests
 from bs4 import BeautifulSoup, Tag
-import dateutil.parser
 from dateutil import tz
 
 
+logging.basicConfig(
+    filename=path.join(path.dirname(path.realpath(__file__)), "app.log"),
+    filemode="a",
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+
+
 def main():
-    # get current month and year
     month = datetime.now().month
     year = datetime.now().year
 
+    # the feed shall only contain posts from the current month; helps to keep the feed small
     res = requests.get(
         f"https://www.1000ps.de/motorrad-testberichte?DatumAb=01.{month}.{year}",
         timeout=5,
@@ -19,10 +30,12 @@ def main():
     container = html.select_one("main div.pt-4:not(.row)")
 
     if not isinstance(container, Tag):
-        raise ValueError("Container not found")
+        raise ValueError(f"Container is not a Tag: {type(container)}")
 
     items = container.select(".card:not(.native-ad-story) .boxlink")
-    print(f"{len(items)} Testberichte.")
+
+    if not items:
+        raise ValueError("No items found in container.")
 
     testberichte = []
     for item in items:
@@ -35,12 +48,29 @@ def main():
 
         content = item.select_one(".card-body .card-text")
 
-        if not content:
-            raise ValueError(f"Content not found for {title}")
+        if not title:
+            logging.warning("Title not found for %s", link)
+            continue
 
+        if not link:
+            logging.warning("Link not found for %s", title)
+            continue
+
+        if not img_src:
+            logging.warning("Image not found for %s", title)
+            # keep going
+
+        if not content:
+            logging.warning("Content not found for %s", title)
+            continue
+
+        # extract date from content and remove it from the text
         if span := content.select_one("span"):
             date_str = getattr(span, "text", "01-01-1970")
             span.decompose()
+            if date_str == "01-01-1970":
+                logging.warning("Date not found for %s", title)
+                continue
 
         if img_src:
             content.append(
@@ -99,4 +129,7 @@ def generate_feed(testberichte: list[Testbericht]) -> str:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        logging.error(e)
