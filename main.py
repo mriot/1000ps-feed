@@ -76,7 +76,7 @@ class Testbericht:
         return f"""
         <item>
           <title>{self.title}</title>
-          <link>{self.link}</link>  
+          <link>{self.link}</link>
           <description><![CDATA[{self.description}]]></description>
           <pubDate>{self.pub_date}</pubDate>
         </item>
