@@ -7,14 +7,7 @@ import dateutil.parser
 import requests
 from bs4 import BeautifulSoup
 from dateutil import tz
-
-
-logging.basicConfig(
-    filename=path.join(path.dirname(path.realpath(__file__)), "app.log"),
-    filemode="a",
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
+from dotenv import load_dotenv
 
 
 def main():
@@ -161,6 +154,15 @@ class Feed:
 
 if __name__ == "__main__":
     try:
+        load_dotenv()
+
+        logging.basicConfig(
+            filename=path.join(path.dirname(path.realpath(__file__)), "app.log"),
+            filemode="a",
+            format="%(asctime)s - %(levelname)s - %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
+        )
+
         main()
     except Exception as e:
         logging.error(e)
