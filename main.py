@@ -10,7 +10,7 @@
 # ///
 import logging
 from datetime import datetime
-from ftplib import FTP
+from ftplib import FTP_TLS
 from os import getenv, path
 
 import dateutil.parser
@@ -146,20 +146,22 @@ class Feed:
         if not ftp_user or not ftp_pass:
             raise ValueError("FTP_USER and FTP_PASS must be set in the .env file.")
 
-        ftp = FTP(ftp_host)
-        ftp.login(ftp_user, ftp_pass)
+        ftps = FTP_TLS()
+        ftps.connect(ftp_host)
+        ftps.login(ftp_user, ftp_pass)
+        ftps.prot_p()
 
         if ftp_path:
-            ftp.cwd(ftp_path)
+            ftps.cwd(ftp_path)
 
         with open(self.file_path, "rb") as file:
-            ftp.storbinary("STOR 1000ps.rss", file)
-            if ftp.lastresp == "226":
+            ftps.storbinary("STOR 1000ps.rss", file)
+            if ftps.lastresp == "226":
                 print("Upload successful.")
             else:
-                logging.error("Error uploading: %s", ftp.lastresp)
+                logging.error("Error uploading: %s", ftps.lastresp)
 
-        ftp.quit()
+        ftps.quit()
 
 
 if __name__ == "__main__":
