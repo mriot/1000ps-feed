@@ -1,7 +1,17 @@
+# /// script
+# requires-python = ">=3.9"
+# dependencies = [
+#     "beautifulsoup4==4.12.3",
+#     "lxml==5.2.2",
+#     "python-dateutil==2.9.0.post0",
+#     "python-dotenv==1.0.1",
+#     "requests==2.31.0",
+# ]
+# ///
 import logging
 from datetime import datetime
-from os import path, getenv
 from ftplib import FTP
+from os import getenv, path
 
 import dateutil.parser
 import requests

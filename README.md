@@ -1,9 +1,10 @@
 # 1000ps-feed
+
 RSS Feed generator for 1000PS Testberichte <https://www.1000ps.de/motorrad-testberichte>
 
 A version that is updated every 6 hours is hosted here: <https://riotcoding.com/feeds/1000ps.rss>
 
-# Usage
+## Usage
 
 > [!NOTE]
 > Runs on Python 3.9+ to maximize compatibility with most Raspberry Pis.
@@ -39,7 +40,7 @@ Then add the following line:
 
 Create a `.env` file in the root directory with the following content:
 
-```
+```ini
 FTP_HOST = ftp-host
 FTP_USER = username
 FTP_PASS = password
